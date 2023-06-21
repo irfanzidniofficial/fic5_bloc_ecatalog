@@ -28,7 +28,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     nameController!.dispose();
     emailController!.dispose();
@@ -70,6 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
             TextField(
               controller: passwordController,
               decoration: const InputDecoration(labelText: "Password"),
+              obscureText: true,
             ),
             const SizedBox(
               height: 16,
@@ -110,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     SnackBar(
                       content:
                           Text("Register Success with id:  ${state.model.id}"),
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.blue,
                     ),
                   );
                   Navigator.push(
@@ -123,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   );
                 }
               },
-            )
+            ),
             // BlocListener<RegisterBloc, RegisterState>(
             //   listener: (context, state) {
             //     if (state is RegisterError) {
@@ -173,6 +173,28 @@ class _RegisterPageState extends State<RegisterPage> {
             //     },
             //   ),
             // ),
+            const SizedBox(
+              height: 15,
+            ),
+
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const LoginPage();
+                    },
+                  ),
+                );
+              },
+              child: const Text(
+                "Sudah punya akun? Login",
+                style: TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+            ),
           ],
         ),
       ),
