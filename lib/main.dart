@@ -1,6 +1,7 @@
 import 'package:fic5_bloc_ecatalog/bloc/add_product/add_product_bloc.dart';
 import 'package:fic5_bloc_ecatalog/bloc/login/login_bloc.dart';
 import 'package:fic5_bloc_ecatalog/bloc/products/products_bloc.dart';
+import 'package:fic5_bloc_ecatalog/bloc/update_product/update_product_bloc.dart';
 import 'package:fic5_bloc_ecatalog/data/datasources/auth_datasource.dart';
 import 'package:fic5_bloc_ecatalog/data/datasources/product_datasource.dart';
 import 'package:fic5_bloc_ecatalog/presentation/login_page.dart';
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => AddProductBloc(ProductDataSource()),
+        ),
+        BlocProvider(
+          create: (context) => UpdateProductBloc(ProductDataSource()),
         ),
       ],
       child: MaterialApp(

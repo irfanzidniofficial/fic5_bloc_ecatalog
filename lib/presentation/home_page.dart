@@ -1,7 +1,6 @@
-import 'package:fic5_bloc_ecatalog/bloc/add_product/add_product_bloc.dart';
 import 'package:fic5_bloc_ecatalog/bloc/products/products_bloc.dart';
 import 'package:fic5_bloc_ecatalog/data/datasources/local_datasource.dart';
-import 'package:fic5_bloc_ecatalog/model/request/product_request_model.dart';
+import 'package:fic5_bloc_ecatalog/presentation/add_product_page.dart';
 import 'package:fic5_bloc_ecatalog/presentation/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -107,87 +106,96 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Add Product"),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      decoration: const InputDecoration(labelText: "Title"),
-                      controller: titleController,
-                    ),
-                    TextField(
-                      decoration: const InputDecoration(labelText: "Price"),
-                      controller: priceController,
-                    ),
-                    TextField(
-                      decoration:
-                          const InputDecoration(labelText: "Description"),
-                      controller: descriptionController,
-                    ),
-                  ],
-                ),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Cancel"),
-                  ),
-                  BlocConsumer<AddProductBloc, AddProductState>(
-                    listener: (context, state) {
-                      if (state is AddProductSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Add Product Success"),
-                          ),
-                        );
-                        // context.read<ProductsBloc>().add(GetProductsEvent());
-                        context
-                            .read<ProductsBloc>()
-                            .add(AddSingleProductsEvent(data: state.model));
-
-                        titleController!.clear();
-                        priceController!.clear();
-                        descriptionController!.clear();
-                        Navigator.pop(context);
-                      }
-                      if (state is AddProductError) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Add Product ${state.message}"),
-                          ),
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      if (state is AddProductLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      return ElevatedButton(
-                        onPressed: () {
-                          final requestModel = ProductRequestModel(
-                            title: titleController!.text,
-                            price: int.parse(priceController!.text),
-                            description: descriptionController!.text,
-                          );
-                          context
-                              .read<AddProductBloc>()
-                              .add(DoAddProductEvent(model: requestModel));
-                        },
-                        child: const Text("Add"),
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return const AddProductPage();
+              },
+            ),
           );
+
+          // showDialog(
+          //   context: context,
+          //   builder: (context) {
+          //     return AlertDialog(
+          //       title: const Text("Add Product"),
+          //       content: Column(
+          //         mainAxisSize: MainAxisSize.min,
+          //         children: [
+          //           TextField(
+          //             decoration: const InputDecoration(labelText: "Title"),
+          //             controller: titleController,
+          //           ),
+          //           TextField(
+          //             decoration: const InputDecoration(labelText: "Price"),
+          //             controller: priceController,
+          //           ),
+          //           TextField(
+          //             decoration:
+          //                 const InputDecoration(labelText: "Description"),
+          //             controller: descriptionController,
+          //           ),
+          //         ],
+          //       ),
+          //       actions: [
+          //         ElevatedButton(
+          //           onPressed: () {
+          //             Navigator.pop(context);
+          //           },
+          //           child: const Text("Cancel"),
+          //         ),
+          //         BlocConsumer<AddProductBloc, AddProductState>(
+          //           listener: (context, state) {
+          //             if (state is AddProductSuccess) {
+          //               ScaffoldMessenger.of(context).showSnackBar(
+          //                 const SnackBar(
+          //                   content: Text("Add Product Success"),
+          //                 ),
+          //               );
+          //               // context.read<ProductsBloc>().add(GetProductsEvent());
+          //               context
+          //                   .read<ProductsBloc>()
+          //                   .add(AddSingleProductsEvent(data: state.model));
+
+          //               titleController!.clear();
+          //               priceController!.clear();
+          //               descriptionController!.clear();
+          //               Navigator.pop(context);
+          //             }
+          //             if (state is AddProductError) {
+          //               ScaffoldMessenger.of(context).showSnackBar(
+          //                 SnackBar(
+          //                   content: Text("Add Product ${state.message}"),
+          //                 ),
+          //               );
+          //             }
+          //           },
+          //           builder: (context, state) {
+          //             if (state is AddProductLoading) {
+          //               return const Center(
+          //                 child: CircularProgressIndicator(),
+          //               );
+          //             }
+          //             return ElevatedButton(
+          //               onPressed: () {
+          //                 final requestModel = ProductRequestModel(
+          //                   title: titleController!.text,
+          //                   price: int.parse(priceController!.text),
+          //                   description: descriptionController!.text,
+          //                 );
+          //                 context
+          //                     .read<AddProductBloc>()
+          //                     .add(DoAddProductEvent(model: requestModel));
+          //               },
+          //               child: const Text("Add"),
+          //             );
+          //           },
+          //         ),
+          //       ],
+          //     );
+          //   },
+          // );
         },
         child: const Icon(
           Icons.add,
