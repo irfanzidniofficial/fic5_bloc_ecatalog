@@ -17,11 +17,10 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
       emit(AddProductLoading());
 
       final result = await dataSource.createProduct(event.model);
-
       result.fold((error) {
         emit(AddProductError(message: error));
       }, (data) {
-        AddProductSuccess(model: data);
+        emit(AddProductSuccess(model: data));
       });
     });
   }

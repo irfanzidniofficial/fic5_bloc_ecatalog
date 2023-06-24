@@ -18,13 +18,22 @@ class _HomePageState extends State<HomePage> {
   TextEditingController? priceController;
   TextEditingController? descriptionController;
 
+  final scrollContorller = ScrollController();
+
   @override
   void initState() {
     titleController = TextEditingController();
     priceController = TextEditingController();
     descriptionController = TextEditingController();
     super.initState();
+
     context.read<ProductsBloc>().add(GetProductsEvent());
+    scrollContorller.addListener(() {
+      if (scrollContorller.position.maxScrollExtent ==
+          scrollContorller.offset) {
+        context.read<ProductsBloc>().add(NextProductsEvent());
+      }
+    });
   }
 
   @override
@@ -50,6 +59,7 @@ class _HomePageState extends State<HomePage> {
                   return const LoginPage();
                 },
               ));
+              context.read<ProductsBloc>().add(ClearProductsEvent());
             },
             icon: const Icon(
               Icons.logout,
@@ -63,12 +73,19 @@ class _HomePageState extends State<HomePage> {
       body: BlocBuilder<ProductsBloc, ProductsState>(
         builder: (context, state) {
           if (state is ProductsSuccess) {
+            debugPrint('total data: ${state.data.length}');
             return Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,
               ),
               child: ListView.builder(
+                controller: scrollContorller,
                 itemBuilder: (context, index) {
+                  if (state.isNext && index == state.data.length) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
                   return Card(
                     child: ListTile(
                       title: Text(
@@ -78,7 +95,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-                itemCount: state.data.length,
+                itemCount:
+                    state.isNext ? state.data.length + 1 : state.data.length,
               ),
             );
           }
@@ -127,9 +145,11 @@ class _HomePageState extends State<HomePage> {
                             content: Text("Add Product Success"),
                           ),
                         );
-                        context.read<ProductsBloc>().add(
-                              GetProductsEvent(),
-                            );
+                        // context.read<ProductsBloc>().add(GetProductsEvent());
+                        context
+                            .read<ProductsBloc>()
+                            .add(AddSingleProductsEvent(data: state.model));
+
                         titleController!.clear();
                         priceController!.clear();
                         descriptionController!.clear();
@@ -149,17 +169,16 @@ class _HomePageState extends State<HomePage> {
                           child: CircularProgressIndicator(),
                         );
                       }
-
                       return ElevatedButton(
                         onPressed: () {
-                          final model = ProductRequestModel(
+                          final requestModel = ProductRequestModel(
                             title: titleController!.text,
                             price: int.parse(priceController!.text),
                             description: descriptionController!.text,
                           );
                           context
                               .read<AddProductBloc>()
-                              .add(DoAddProductEvent(model: model));
+                              .add(DoAddProductEvent(model: requestModel));
                         },
                         child: const Text("Add"),
                       );

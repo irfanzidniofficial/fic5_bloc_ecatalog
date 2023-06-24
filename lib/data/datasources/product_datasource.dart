@@ -11,7 +11,23 @@ class ProductDataSource {
       Uri.parse("https://api.escuelajs.co/api/v1/products/"),
     );
     if (response.statusCode == 200) {
-      return Right(List.from(jsonDecode(response.body)
+      return Right(List<ProductResponseModel>.from(jsonDecode(response.body)
+          .map((x) => ProductResponseModel.fromMap(x))));
+    } else {
+      return const Left("Get Products Error");
+    }
+  }
+
+  // https://api.escuelajs.co/api/v1/products/?offset=0&limit=10
+
+  Future<Either<String, List<ProductResponseModel>>> getPaginationProduct(
+      {required int offset, required int limit}) async {
+    final response = await http.get(
+      Uri.parse(
+          "https://api.escuelajs.co/api/v1/products/?offset=$offset&limit=$limit"),
+    );
+    if (response.statusCode == 200) {
+      return Right(List<ProductResponseModel>.from(jsonDecode(response.body)
           .map((x) => ProductResponseModel.fromMap(x))));
     } else {
       return const Left("Get Products Error");
@@ -23,7 +39,7 @@ class ProductDataSource {
     final response = await http.post(
       Uri.parse('https://api.escuelajs.co/api/v1/products/'),
       body: model.toJson(),
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json'}, 
     );
 
     if (response.statusCode == 201) {

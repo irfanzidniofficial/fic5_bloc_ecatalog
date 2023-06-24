@@ -29,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   void checkAuth() async {
     final auth = await LocalDataSource().getToken();
     if (auth.isNotEmpty) {
+      // ignore: use_build_context_synchronously
       Navigator.push(context, MaterialPageRoute(
         builder: (_) {
           return const HomePage();
