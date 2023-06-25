@@ -1,7 +1,13 @@
-import 'package:fic5_bloc_ecatalog/bloc/update_product/update_product_bloc.dart';
+import 'dart:io';
+
+import 'package:camera/camera.dart';
 import 'package:fic5_bloc_ecatalog/model/request/product_request_model.dart';
+import 'package:fic5_bloc_ecatalog/presentation/camera_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../bloc/update_product_cubit/update_product_cubit.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
@@ -15,6 +21,13 @@ class _AddProductPageState extends State<AddProductPage> {
   TextEditingController? priceController;
   TextEditingController? descriptionController;
 
+  XFile? picture;
+
+  void takePicture(XFile file) {
+    picture = file;
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
@@ -24,7 +37,18 @@ class _AddProductPageState extends State<AddProductPage> {
     super.initState();
   }
 
-  
+  Future<void> getImage(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? photo = await picker.pickImage(
+      source: source,
+      imageQuality: 50,
+    );
+
+    if (photo != null) {
+      picture = photo;
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +62,21 @@ class _AddProductPageState extends State<AddProductPage> {
           const SizedBox(
             height: 20,
           ),
-          Container(
-            height: 200,
-            width: 150,
-            decoration: BoxDecoration(
-              border: Border.all(),
-            ),
-          ),
+          picture != null
+              ? SizedBox(
+                  height: 200,
+                  width: 150,
+                  child: Image.file(
+                    File(picture!.path),
+                  ),
+                )
+              : Container(
+                  height: 200,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                  ),
+                ),
           const SizedBox(
             height: 10,
           ),
@@ -53,14 +85,29 @@ class _AddProductPageState extends State<AddProductPage> {
             children: [
               ElevatedButton(
                   style: ElevatedButton.styleFrom(),
-                  onPressed: () async {},
+                  onPressed: () async {
+                    await availableCameras().then(
+                      (value) => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return CameraPage(
+                              takePicture: takePicture,
+                              cameras: value,
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
                   child: const Text('Camera')),
               const SizedBox(
                 width: 8,
               ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(),
-                onPressed: () {},
+                onPressed: () {
+                  getImage(ImageSource.gallery);
+                },
                 child: const Text(
                   "Galery",
                 ),
@@ -91,15 +138,56 @@ class _AddProductPageState extends State<AddProductPage> {
           const SizedBox(
             height: 15,
           ),
-          BlocListener<UpdateProductBloc, UpdateProductState>(
+
+          // Bloc
+
+          // BlocListener<UpdateProductBloc, UpdateProductState>(
+          //   listener: (context, state) {
+          //     state.maybeWhen(
+          //         orElse: () {},
+          //         success: (model) {
+          //           Navigator.pop(context);
+          //         });
+          //   },
+          // child: BlocBuilder<UpdateProductBloc, UpdateProductState>(
+          //   builder: (context, state) {
+          //     return state.maybeWhen(
+          //       orElse: () {
+          //         return ElevatedButton(
+          //           onPressed: () {
+          //             final model = ProductRequestModel(
+          //               title: titleController!.text,
+          //               price: int.parse(priceController!.text),
+          //               description: descriptionController!.text,
+          //             );
+          //             context
+          //                 .read<UpdateProductBloc>()
+          //                 .add(UpdateProductEvent.doUpdate(model));
+          //           },
+          //           child: const Text("Submit"),
+          //         );
+          //       },
+          //       loading: () {
+          //         return const Center(
+          //           child: CircularProgressIndicator(),
+          //         );
+          //       },
+          //     );
+          //   },
+          // ),
+
+          // Cubit
+
+          BlocListener<UpdateProductCubit, UpdateProductStateCubit>(
             listener: (context, state) {
               state.maybeWhen(
                   orElse: () {},
                   success: (model) {
+                    debugPrint(model.toString());
                     Navigator.pop(context);
                   });
             },
-            child: BlocBuilder<UpdateProductBloc, UpdateProductState>(
+            child: BlocBuilder<UpdateProductCubit, UpdateProductStateCubit>(
               builder: (context, state) {
                 return state.maybeWhen(
                   orElse: () {
@@ -110,9 +198,7 @@ class _AddProductPageState extends State<AddProductPage> {
                           price: int.parse(priceController!.text),
                           description: descriptionController!.text,
                         );
-                        context
-                            .read<UpdateProductBloc>()
-                            .add(UpdateProductEvent.doUpdate(model));
+                        context.read<UpdateProductCubit>().addProduct(model);
                       },
                       child: const Text("Submit"),
                     );
